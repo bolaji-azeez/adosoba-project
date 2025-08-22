@@ -6,6 +6,18 @@
     <title>Document</title>
 </head>
 <body>
-    
+    <p>Department Name : <span id="tag"></span></p>
+    <p>Department Code :<span id="code"></span></p>
+    <p>Description: <span id="des"></span></p>
+
+    <script>
+      let Department = document.getElementById("tag");
+      //  let email = document.getElementById("email")
+      let Departments = document.getElementById("code");
+      let Description = document.getElementById("des");
+         Department.textContent = localStorage.getItem("Department");
+      Description.textContent = localStorage.getItem("Description");
+       Departments.textContent = localStorage.getItem("Departments");
+    </script>
 </body>
 </html>
