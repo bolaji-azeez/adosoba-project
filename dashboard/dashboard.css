@@ -1,3 +1,5 @@
+*/
+
 * {
     margin: 0;
     padding: 0;
@@ -89,15 +91,6 @@ header h1 {
     width: 1000px;
 }
 
-/* .card {
-    background: linear-gradient(135deg, #f3f3f3, #e5e5e5);
-    padding: 20px;
-    text-align: center;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-} */
-
 .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
@@ -151,8 +144,13 @@ header h1 {
 .dept-card p {
     font-size: 14px;
 }
+.dept-card p img {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
 
-/* Responsive */
 @media (max-width: 600px) {
     header {
         flex-direction: column;
@@ -161,7 +159,6 @@ header h1 {
 }
 
 .card {
-    /* flex:  200px; */
     width: 100%;
     justify-content: space-between;  
     align-items: center;
@@ -171,7 +168,7 @@ header h1 {
     font-weight: bold;
 }
 
-.card .icon {
+.card .icon  {
     position: absolute;
     font-size: 45px;
     margin-bottom: 10px;
@@ -183,6 +180,9 @@ header h1 {
     font-size: 26px;
     margin-bottom: 5px;
 }
+.card p{
+    margin-left: 35px;
+}
 .icon img{
-    height: 567px;
+    height: 67px;
 }

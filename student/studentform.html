@@ -4,9 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="student.css">
     <link></link>
 </head>
-<body>
-    
+<body class="ka-body">
+
+  <div class="form-container">
+    <h1>ADD STUDENT</h1>
+    <hr>
+    <p class="p">Student infomation</p>
+    <label for="grade">STUDENT ID</label>
+    <input type="text" id="StudentId" placeholder="Enter Student ID">
+    <label for="grade">FIRST NAME</label>
+    <input type="text" id="firstName" placeholder="Enter First Name">
+    <label for="grade">LAST NAME</label>
+    <input type="text" id="lastName" placeholder="Enter Last Name">
+    <label for="grade">Email</label>
+    <input type="email" id="email" placeholder="Enter Email">
+     <label for="grade">PHONE</label>
+    <input type="number" id="phone" placeholder="Enter Phone number">
+     
+    <div class="kacon2">
+      <label for="grade">Enrollment Date</label>
+    <input type="date" id="enrollmentDate" placeholder="Enter grade">
+      <label for="status">Status</label>
+    <select id="status">
+      <option value="In Progress">In Progress</option>
+      <option value="On Hold">On Hold</option>
+      <option value="Completed">Completed</option>
+    </select>
+
+    <label for="grade">Grade</label>
+    <input type="text" id="grade" placeholder="Enter grade">
+
+    <label for="description">Description</label>
+    <textarea id="description" placeholder="Enter description"></textarea>
+    </div>
+    <div class="buttons">
+      <nav> <button class="add" onclick="AddStudent()">Add Student</button></nav>
+      <nav>
+          <button class="cancel" onclick="cancel()">Cancel</button>
+        <button onclick="addProject()">+ Add Another Project</button>
+      </nav>
+      
+    </div>
+  </div>
+
+  <script src="department.js"></script>
+
 </body>
 </html>
