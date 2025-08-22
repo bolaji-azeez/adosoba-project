@@ -1,0 +1,104 @@
+ *{
+        box-sizing: border-box;
+    }
+    header nav{
+      gap: 20px;
+      display: flex;
+      align-items: center;
+    }
+  body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f4f888;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  max-width: 100%;
+  margin: auto;
+  padding: 50px 60px;
+  /* box-sizing: border-box; */
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  /* color: white; */
+  padding: 10px 50px;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.user-actions span {
+  margin-right: 20px;
+}
+
+.logout {
+  background-color:black;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+}
+
+.department {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.add-student {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 15px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f0f4f8;
+  height: 50px;
+}
+
+/* tbody tr:nth-child(even) { */
+  /* background-color: #f9f9f9; */
+    
+/* } */
+
+.status.active {
+  background-color:black;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+
+.view {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
