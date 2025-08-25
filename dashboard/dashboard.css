@@ -1,4 +1,8 @@
-*{
+
+
+
+* {
+
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -89,8 +93,15 @@ cursor: pointer;
     padding: 30px;
      border: 1px solid rgba(24, 21, 21, 0.655);
 }
+
 .first-card img{
     width: 100px;
+
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+
 }
 .first-card p{
     color: black;
@@ -180,6 +191,7 @@ cursor: pointer;
     cursor: pointer;
     margin-left: 30px;
 }
+
 .first-next{
     width: 200px;
         color: black;
@@ -202,6 +214,7 @@ display: flex;
     font-weight: 500;
 }
 .text-text{
+
     margin-bottom: 10px;
 }
 .card-text-2{
@@ -242,8 +255,16 @@ display: flex;
 .card-text-2{
     display: flex;
 }
+
 .card-text-2 img{
     width: 20px;
     margin-right: 3px;
     margin-left: 10px;
+
+.card p{
+    margin-left: 35px;
+}
+.icon img{
+    height: 67px;
+
 }
