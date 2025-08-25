@@ -17,9 +17,9 @@
              error.style.display = 'none';
         }, 3000);
         } else {
-            alert("Login successful")
+            alert("Login successful");
         }
-       
+       window.location.href = "../dashboard/dashboard.html"
       });
 
  
