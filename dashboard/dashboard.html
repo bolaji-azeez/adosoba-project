@@ -1,11 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+       <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-</head>
-<body>
+    <link rel="stylesheet" href="dashboard.css">
+   <body>
     
+    <header>
+        <div class="header-h1">
+      <h1>Student Data Management</h1>
+        </div>
+        
+        <div class="header-p">
+   <p>Admin</p>
+   <p>User</p>
+   <button onclick="logout()" class="btn">
+    LOGOUT
+</button>
+
+        </div>       
+    </header>
+
+    <div class="main-div">
+                
+   <div class="Overview">
+   <h1>Overview</h1>
+   </div>
+  
+   <div class="card-div">
+   <div class="first-card">
+ <div>
+<img src="./assets/users-svgrepo-com.svg" alt="">
+ </div>
+ <div class="card-text">
+        <p class="no">3</p>
+    <p>Total Students</p>
+ </div>
+   </div>
+  <div class="second-card">
+<div>
+<img src="./assets/note-notepad-svgrepo-com.svg" alt="">
+ </div>
+ <div class="card-text">
+        <p class="no">2</p>
+    <p>Total departments</p>
+ </div>
+  </div>
+ <div class="third-card">
+<div>
+<img src="./assets/graph-svgrepo-com.svg" alt="">
+ </div>
+ <div class="card-text">
+        <p class="no">4</p>
+    <p>Total projects</p>
+ </div>
+ </div>
+
+
+
+   </div>
+
+ 
+  <div class="under-card">
+  <div class="under-p">
+  <p>Departments</p>
+  </div>
+
+  <div> 
+  <button onclick="Create()" class="btn-2">+ CREATE DEPARTMENTS</button>
+  </div>
+  </div>
+  <hr style="margin: 25px; border: 1px solid rgba(255, 255, 255, 0.4);">
+
+  <div>
+
+  </div>
+    
+
+
+    <div   onclick="cards()" class="next-cards">
+        <div class="first-next">
+     <div class="text-text">
+<p class="bb">Computer Science</p>
+<p class="tt">Department of Computer Science and Engineering</p>
+ </div>
+ <div class="card-text-2">
+        <p>  <img src="./assets/users-svgrepo-com.svg" alt="">4 Students</p>
+    <p> <img src="./assets/graph-svgrepo-com.svg" alt=""> 6 projects</p>
+ </div>
+   </div>
+
+   <div class="second-next">
+
+     <div class="text-text">
+<p class="bb">Business Administration</p>
+<p class="tt">Department of Business Administration and Management</p>
+ </div>
+ <div class="card-text-2">
+        <p>  <img src="./assets/users-svgrepo-com.svg" alt=""> 2 Students</p>
+    <p> <img src="./assets/graph-svgrepo-com.svg" alt=""> 3 projects</p>
+ </div>
+   </div>
+    </div>
+
+    
+   <script>
+    function Create(){
+      window.location.href = "create.html"
+    }
+    
+
+function logout(){
+  window.location.href = "../login/login.html"
+}
+
+    function cards(){
+      window.location.href = "view.html"  
+    }
+   </script>
+
+   
+
 </body>
 </html>
