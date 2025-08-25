@@ -4,8 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="login.css">
+    <link rel ="stylesheet" href ="student.css">
 </head>
 <body>
-    
+      <div class="main-div">
+      <div class="text-div">
+        <h1>Student Data management</h1>
+        <p>Admin Portal</p>
+      </div>
+      <p id="error" style="color: rgb(181, 91, 91)"></p>
+      <div class="input-div">
+        <div class="first-input">
+          <label for="EMAIL ADDRESS">EMAIL ADDRESS</label>
+          <input type="email" id="email" />
+        </div>
+        <div class="second-input">
+          <label for="PASSWORD">PASSWORD</label>
+          <input type="password" id="pass" />
+        </div>
+
+        <div>
+          <!-- <button class="btn">SIGN IN</button> -->
+          <button id="btn" class="btn">SIGN IN</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="login.js"></script>
 </body>
 </html>
