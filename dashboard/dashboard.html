@@ -1,126 +1,74 @@
-<!DOCTYPE html>
+     <!DOCTYPE html>
 <html lang="en">
 <head>
-       <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Student Data Management</title>
     <link rel="stylesheet" href="dashboard.css">
-   <body>
-    
-    <header>
-        <div class="header-h1">
-      <h1>Student Data Management</h1>
-        </div>
-        
-        <div class="header-p">
-   <p>Admin</p>
-   <p>User</p>
-   <button onclick="logout()" class="btn">
-    LOGOUT
-</button>
 
-        </div>       
-    </header>
+</head>
+<body>
 
-    <div class="main-div">
-                
-   <div class="Overview">
-   <h1>Overview</h1>
-   </div>
-  
-   <div class="card-div">
-   <div class="first-card">
- <div>
-<img src="./assets/users-svgrepo-com.svg" alt="">
- </div>
- <div class="card-text">
-        <p class="no">3</p>
-    <p>Total Students</p>
- </div>
-   </div>
-  <div class="second-card">
-<div>
-<img src="./assets/note-notepad-svgrepo-com.svg" alt="">
- </div>
- <div class="card-text">
-        <p class="no">2</p>
-    <p>Total departments</p>
- </div>
-  </div>
- <div class="third-card">
-<div>
-<img src="./assets/graph-svgrepo-com.svg" alt="">
- </div>
- <div class="card-text">
-        <p class="no">4</p>
-    <p>Total projects</p>
- </div>
- </div>
-
-
-
-   </div>
-
- 
-  <div class="under-card">
-  <div class="under-p">
-  <p>Departments</p>
-  </div>
-
-  <div> 
-  <button onclick="Create()" class="btn-2">+ CREATE DEPARTMENTS</button>
-  </div>
-  </div>
-  <hr style="margin: 25px; border: 1px solid rgba(255, 255, 255, 0.4);">
-
-  <div>
-
-  </div>
-    
-
-
-    <div   onclick="cards()" class="next-cards">
-        <div class="first-next">
-     <div class="text-text">
-<p class="bb">Computer Science</p>
-<p class="tt">Department of Computer Science and Engineering</p>
- </div>
- <div class="card-text-2">
-        <p>  <img src="./assets/users-svgrepo-com.svg" alt="">4 Students</p>
-    <p> <img src="./assets/graph-svgrepo-com.svg" alt=""> 6 projects</p>
- </div>
-   </div>
-
-   <div class="second-next">
-
-     <div class="text-text">
-<p class="bb">Business Administration</p>
-<p class="tt">Department of Business Administration and Management</p>
- </div>
- <div class="card-text-2">
-        <p>  <img src="./assets/users-svgrepo-com.svg" alt=""> 2 Students</p>
-    <p> <img src="./assets/graph-svgrepo-com.svg" alt=""> 3 projects</p>
- </div>
-   </div>
+<header>
+    <h1>Student Data Management</h1>
+    <div class="user-info">
+        <span>Admin User</span>
+        <button>Logout</button>
     </div>
+</header>
 
-    
-   <script>
-    function Create(){
-      window.location.href = "create.html"
-    }
-    
+<main>
+    <section class="overview">
+        <h2>Overview</h2>
+        <div class="cards">
+            <div class="card">
+                 <div class="icon"><img src="./svg/student-person-3-svgrepo-com (1).svg" alt="student"></div>
+                <p class="number">3</p>
+                <p>Total Students</p>
+            </div>
+            <div class="card">
+              <div class="icon"><img src="./svg/home-svgrepo-com.svg" alt="home"></div>
+                <p class="number">3</p>
+                <p>Total Departments</p>
+            </div>
+            <div class="card">
+                <div class="icon"><img src="./svg/statistics-svgrepo-com (2).svg" alt=""></div>
+                <p class="number">4</p>
+                <p>Total Projects</p>
+            </div>
+        </div>
+      
+    </section>
 
-function logout(){
-  window.location.href = "../login/login.html"
-}
+    <section class="departments">
+        <div class="btn-h2">
+             <h2>Departments</h2>
+              <button class="btn-create">+ Create Department</button>
 
-    function cards(){
-      window.location.href = "view.html"  
-    }
-   </script>
+            </div>
+       
+        <div class="dept-list">
+            <div class="dept-card">
+                <h3>Computer Science</h3>
+                <p>Department of Computer Science and Engineering</p>
+                               <p><img src="./svg/student-person-3-svgrepo-com (1).svg" alt=""> 0 Students | <img src="./svg/statistics-svgrepo-com (2).svg" alt=""> 0 Projects</p>
+            </div>
+            <div class="dept-card">
+                <h3>Business Administration</h3>
+                <p>Department of Business Administration and Management</p>
+                               <p><img src="./svg/student-person-3-svgrepo-com (1).svg" alt=""> 0 Students | <img src="./svg/statistics-svgrepo-com (2).svg" alt=""> 0 Projects</p>
+            </div>
+            <div class="dept-card">
+                <h3>Computer</h3>
+                <p>No students or projects yet.</p>
+                <p><img src="./svg/student-person-3-svgrepo-com (1).svg" alt=""> 0 Students | <img src="./svg/statistics-svgrepo-com (2).svg" alt=""> 0 Projects</p>
+            </div>
+        </div>
 
-   
+
+
+</main>
+
 
 </body>
 </html>
