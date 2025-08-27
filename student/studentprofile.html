@@ -4,8 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="./student.css">
+
 </head>
 <body>
+     <header>
+      <nav>
+        <img src="/student/image.png" alt="" height="100px">
+      <h1>  GTC Adosoba</h1>
+      </nav>
+      <div class="user-actions">
+        <span>Admin User</span>
+        <button onclick="logut()" class="logout">LOGOUT</button>
+      </div>
+    </header>
+  <div class="container">
     
+    <main>
+      <nav class="breadcrumb"> <span><h3>Dashboard ></h3></span> Business Administration</nav>
+      <section class="department">
+        <h2>Business Administration</h2>
+        <p>Department of Business Administration and Management</p>
+        <button onclick="AddStudent()" class="add-student">+ ADD STUDENT</button>
+        <table>
+          <thead>
+            <tr>
+              <th>STUDENT ID</th>
+              <th>NAME</th>
+              <th>EMAIL</th>
+              <th>PROJECTS</th>
+              <th>STATUS</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>BA001</td>
+              <td>marcel onyedika</td>
+              <td>marcelonyedika111@gmail.com</td>
+              <td>1</td>
+              <td><span class="status active">ACTIVE</span></td>
+              <td><button class="view">VIEW</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
 </body>
 </html>

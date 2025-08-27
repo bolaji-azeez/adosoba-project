@@ -1,0 +1,102 @@
+  *{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  .p{
+    margin: 10px 0 10px 0;
+    color: #888;
+  }
+  .ka-body {
+  background:white;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: white;  /* track color */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: black;  /* thumb color */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b9b9b9;
+  width: 8px;
+}
+
+
+.form-container {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 800px;
+  height: 80vh;
+  color: black;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  overflow-y: scroll;
+}
+
+label {
+  display: block;
+  font-size: 15px;
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 8px;
+  /* margin-top: 5px; */
+  /* border: none; */
+  border-radius: 5px;
+}
+
+textarea {
+  resize: none;
+  height: 60px;
+}
+.kacon2{
+  margin-top: 10px;
+  padding: 0 10px 10px 10px;
+  border: 1px solid black;
+}
+
+.buttons {
+  margin-top: 20px;
+  display: flex;
+  /* justify-content: space-between; */
+  flex-direction: column;
+  gap: 5px;
+}
+
+button {
+  padding: 8px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel {
+  background: #888;
+  color: white;
+}
+
+.add {
+  background: linear-gradient(to right, #3289e0, #2575fc);
+  color: white;
+  width: 200px;
+}
+.delete-btn{
+  padding: 10px 20px;
+  background-color: red;
+}

@@ -1,5 +1,8 @@
-*/
+
+
+
 * {
+
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -8,6 +11,26 @@
 body {
     font-family: Arial, sans-serif;
     background-color: white;
+    width: 350px;
+    height: 180px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px;
+     border: 1px solid rgba(24, 21, 21, 0.655);
+}
+
+.first-card img{
+    width: 100px;
+
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+
+}
+.first-card p{
     color: black;
     padding: 20px;
 }
@@ -42,8 +65,14 @@ header h1 {
     cursor: pointer;
     transition: background-color 0.3s;
 }
-.user-info button:hover {
-    background-color: white;
+
+.first-next{
+    width: 200px;
+        color: black;
+    height: 150px;
+display: flex;
+}
+.second-next{
     color: black;
 }
 
@@ -74,8 +103,9 @@ header h1 {
     justify-content: center;
     align-items: center;
 }
-.departments h2 {
-        margin-bottom: 15px;
+.text-text{
+
+    margin-bottom: 10px;
 }
 
 /* .btn-h2 */
@@ -176,9 +206,10 @@ header h1 {
     display: flex;
 }
 
-.card h3 {
-    font-size: 26px;
-    margin-bottom: 5px;
+.card-text-2 img{
+    width: 20px;
+    margin-right: 3px;
+    margin-left: 10px;
 }
 .card p{
     margin-left: 35px;
