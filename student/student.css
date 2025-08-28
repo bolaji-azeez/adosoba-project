@@ -1,4 +1,4 @@
-  *{
+*{
     padding: 0;
     margin: 0;
     box-sizing: border-box;
@@ -15,6 +15,15 @@
   align-items: center;
   height: 100vh;
   margin: 0;
+}
+.ka-addStudent{
+  width: 100%;
+  padding: 30px 0 0 0;
+  background-color: white;
+  position: sticky;
+  top: 0px;
+  /* margin: 10px; */
+
 }
 ::-webkit-scrollbar {
   width: 8px;
@@ -37,28 +46,39 @@
 
 .form-container {
   background: white;
-  padding: 30px;
+  padding: 0px 30px 30px 30px;
   border-radius: 10px;
   width: 800px;
+  position: relative;
   height: 80vh;
   color: black;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
   overflow-y: scroll;
 }
-
+.ka-pro{
+  padding: 20px 0 0 0px;
+  color: #888;
+}
 label {
   display: block;
   font-size: 15px;
   margin-top: 20px;
   margin-bottom: 5px;
+  outline: #2575fc;
+}
+
+input :focus {
+  outline: none;
 }
 
 input, select, textarea {
   width: 100%;
+  border: 0.5px solid rgb(170, 168, 168);
   padding: 8px;
   /* margin-top: 5px; */
   /* border: none; */
   border-radius: 5px;
+   outline: none;
 }
 
 textarea {
@@ -66,9 +86,10 @@ textarea {
   height: 60px;
 }
 .kacon2{
-  margin-top: 10px;
+  margin-top: 5px;
   padding: 0 10px 10px 10px;
-  border: 1px solid black;
+  border: 0.5px solid rgb(221, 221, 221);
+  border-radius: 20px;
 }
 
 .buttons {
@@ -96,7 +117,6 @@ button {
   color: white;
   width: 200px;
 }
-.delete-btn{
-  padding: 10px 20px;
-  background-color: red;
+.add:hover {
+  background: linear-gradient(to right, #2575fc, #3289e0);
 }

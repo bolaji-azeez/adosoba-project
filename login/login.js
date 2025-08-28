@@ -1,25 +1,33 @@
- let error = document.getElementById("error");
-      let btn = document.getElementById("btn");
-      btn.addEventListener("click", function () {
-        let email = document.getElementById("email").value;
-        let password = document.getElementById("pass").value;
-        if (!email || !password) {
-          error.textContent = "All  fields required";
-         error.style.display = 'block';
+document.getElementById("btn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("pass").value;
+  const errorMsg = document.getElementById("error");
 
-        setTimeout(() => {
-            error.style.display = 'none';
-        }, 3000);
-        } else if (password !== "12345" || email !== "confidencezion2008@gmail.com") {
-            error.textContent = "Incorrect email or password";
-            error.style.display = 'block';
-        setTimeout(() => {
-             error.style.display = 'none';
-        }, 3000);
-        } else {
-            alert("Login successful");
-        }
-       window.location.href = "../dashboard/dashboard.html"
-      });
+  if (!email || !password) {
+    errorMsg.textContent = "All fields are required!";
+    return;
+  }
 
- 
+  try {
+    const res = await fetch("https://gtc-adosoba-be.onrender.com/api/user/login", { 
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorMsg.textContent = data.message || "Login failed!";
+    } else {
+      alert(data.message); 
+
+      window.location.href = "../dashboard/dashboard.html";
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    errorMsg.textContent = "Something went wrong!";
+  }
+});

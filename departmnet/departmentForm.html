@@ -1,15 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <titl/e>Document</title>
-    <link rel="stylesheet" href="./department.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Department</title>
+    <link rel="stylesheet" href="./department.css" />
+  </head>
+  <body>
+    <div class="page">
+      <div class="body-1">
+        
+          <div class="font1">
+            <h1>Create New Department</h1>
+          </div>
     
 
+        <div class="Hold">
+          <div class="bod-3">
+           <label for="name">Department Name</label>
+            <input type="text" placeholder="Name" id="Department" />
+          </div>
 
-<script src="./department.js"></script>
-</body>
+          <div class="bod-3">
+            <label for="">Deaprtment Code</label>
+            <input type="text" placeholder="Code" id="Departments" />
+          </div>
+
+          <div class="bod-3">
+            <label for="">Department Description</label>
+            <input
+              type="text"
+              placeholder="Description Name"
+              class="Description"
+              id="Description"
+            />
+          </div>
+
+            <div class="btnn">
+           <button class="button-1">
+            <a href="dashboard.html"  style="text-decoration: none; color: white;"
+              >Cancel</a
+            >
+           </button>
+           <button class="button-2" id="btn">Create Department</button>
+           </div>
+        </div>
+
+      
+      </div>
+    </div>
+
+    <script>
+      let btn = document.getElementById("btn");
+
+      btn.addEventListener("click", async function () {
+        let departmentName = document.getElementById("Department").value;
+        let departmentCode = document.getElementById("Departments").value;
+        let description = document.getElementById("Description").value;
+
+        // build request body
+        let body = {
+          departmentName,
+          departmentCode,
+          description,
+        };
+
+        try {
+          let res = await fetch(
+            "https://gtc-adosoba-be.onrender.com/api/department/create-department",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(body),
+            }
+          );
+
+          let data = await res.json();
+          console.log("Response:", data);
+
+          if (res.ok) {
+            alert("Department created successfully!");
+            window.location.href = "../student/studentprofile.html"; // redirect
+          } else {
+            alert("Error: " + data.message);
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Something went wrong");
+        }
+      });
+    </script>
+  </body>
 </html>
