@@ -1,11 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-</head>
-<body>
-    
-</body>
+    <link rel="stylesheet" href="./department.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <img src="/student/image.png" alt="" height="100px" />
+        <h1>GTC Adosoba</h1>
+      </nav>
+      <div class="user-actions">
+        <span>Admin User</span>
+        <button onclick="logut()" class="logout">LOGOUT</button>
+      </div>
+    </header>
+    <div class="container">
+      <!-- <main>
+      <nav class="breadcrumb"> <span><h3>Dashboard ></h3></span> Business Administration</nav>
+      <section class="department">
+        <h2>Business Administration</h2>
+        <p>Department of Business Administration and Management</p>
+        <button onclick="AddStudent()" class="add-student">+ ADD STUDENT</button>
+        <table>
+          <thead>
+            <tr>
+              <th>STUDENT ID</th>
+              <th>NAME</th>
+              <th>EMAIL</th>
+              <th>PROJECTS</th>
+              <th>STATUS</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTableBody">
+            <tr>
+             
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main> -->
+      <h1>Students in Department</h1>
+      <div id="student-list"></div>
+    </div>
+    <script>
+      // Get departmentId from URL query string
+      const urlParams = new URLSearchParams(window.location.search);
+      const departmentId = urlParams.get("id");
+
+      async function fetchStudents() {
+        try {
+          const res = await fetch(
+            `https://gtc-adosoba-be.onrender.com/api/student/department/${departmentId}`
+          );
+          const data = await res.json();
+
+          if (!res.ok) {
+            document.getElementById(
+              "student-list"
+            ).innerHTML = `<p>${data.message}</p>`;
+            return;
+          }
+
+          const studentList = document.getElementById("student-list");
+          studentList.innerHTML = "";
+
+          data.student.forEach((stu) => {
+            const div = document.createElement("div");
+            div.className = "student-card";
+            div.innerHTML = `
+            <h3>${stu.firstName} ${stu.lastName}</h3>
+            <p>Department: ${stu.department?.departmentName || "N/A"}</p>
+            <p>Project: ${stu.project?.title || "No Project Assigned"}</p>
+          `;
+            studentList.appendChild(div);
+          });
+        } catch (err) {
+          console.error("Error fetching students:", err);
+        }
+      }
+
+      fetchStudents();
+    </script>
+  </body>
 </html>

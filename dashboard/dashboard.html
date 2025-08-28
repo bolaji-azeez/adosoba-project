@@ -1,127 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-       <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-    <link rel="stylesheet" href="dashboard.css">
-   <body>
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Data Management</title>
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
     <header>
-        <div class="header-h1">
       <h1>Student Data Management</h1>
-        </div>
-        
-        <div class="header-p">
-   <p>Admin</p>
-   <p>User</p>
-   <button onclick="logout()" class="btn">
-    LOGOUT
-</button>
-
-        </div>       
+      <div class="user-info">
+        <span>Admin User</span>
+        <!-- Logout button calls logout() -->
+        <button onclick="logout()">Logout</button>
+      </div>
     </header>
 
-    <div class="main-div">
-                
-   <div class="Overview">
-   <h1>Overview</h1>
-   </div>
-  
-   <div class="card-div">
-   <div class="first-card">
- <div>
-<img src="./assets/users-svgrepo-com.svg" alt="">
- </div>
- <div class="card-text">
-        <p class="no">3</p>
-    <p>Total Students</p>
- </div>
-   </div>
-  <div class="second-card">
-<div>
-<img src="./assets/note-notepad-svgrepo-com.svg" alt="">
- </div>
- <div class="card-text">
-        <p class="no">2</p>
-    <p>Total departments</p>
- </div>
-  </div>
- <div class="third-card">
-<div>
-<img src="./assets/graph-svgrepo-com.svg" alt="">
- </div>
- <div class="card-text">
-        <p class="no">4</p>
-    <p>Total projects</p>
- </div>
- </div>
+    <div class="dashboard">
+      <main>
+        <!-- Overview Section -->
+        <section class="overview">
+          <h2>Overview</h2>
+          <div class="cards">
+            <div class="card">
+              <div class="icon"><img src="../add.jpg" alt="student" /></div>
+              <p class="number" id="total-students">0</p>
+              <p>Total Students</p>
+            </div>
+            <div class="card">
+              <div class="icon"><img src="../add.jpg" alt="home" /></div>
+              <p class="number" id="total-departments">0</p>
+              <p>Total Departments</p>
+            </div>
+            <div class="card">
+              <div class="icon"><img src="../add.jpg" alt="project" /></div>
+              <p class="number" id="total-projects">0</p>
+              <p>Total Projects</p>
+            </div>
+          </div>
+        </section>
 
+        <!-- Departments Section -->
+        <section class="departments">
+          <div class="btn-h2">
+            <h2>Departments</h2>
+            <!-- Create Department button calls Create() -->
+            <button class="btn-create" onclick="Create()">
+              + Create Department
+            </button>
+          </div>
 
-
-   </div>
-
- 
-  <div class="under-card">
-  <div class="under-p">
-  <p>Departments</p>
-  </div>
-
-  <div> 
-  <button onclick="Create()" class="btn-2">+ CREATE DEPARTMENTS</button>
-  </div>
-  </div>
-  <hr style="margin: 25px; border: 1px solid rgba(255, 255, 255, 0.4);">
-
-  <div>
-
-  </div>
-    
-
-
-    <div   onclick="cards()" class="next-cards">
-        <div class="first-next">
-     <div class="text-text">
-<p class="bb">Computer Science</p>
-<p class="tt">Department of Computer Science and Engineering</p>
- </div>
- <div class="card-text-2">
-        <p>  <img src="./assets/users-svgrepo-com.svg" alt="">4 Students</p>
-    <p> <img src="./assets/graph-svgrepo-com.svg" alt=""> 6 projects</p>
- </div>
-   </div>
-
-   <div class="second-next">
-
-     <div class="text-text">
-<p class="bb">Business Administration</p>
-<p class="tt">Department of Business Administration and Management</p>
- </div>
- <div class="card-text-2">
-        <p>  <img src="./assets/users-svgrepo-com.svg" alt=""> 2 Students</p>
-    <p> <img src="./assets/graph-svgrepo-com.svg" alt=""> 3 projects</p>
- </div>
-   </div>
+          <div class="dept-list"></div>
+        </section>
+      </main>
     </div>
 
-    
-   <script>
-    function Create(){
-      window.location.href = "create.html"
-    }
-    
+    <script>
+      async function loadCounts() {
+        try {
+          // Fetch students
+          const studentsRes = await fetch(
+            "https://gtc-adosoba-be.onrender.com/api/student/all-student"
+          );
+          const students = await studentsRes.json();
+          document.getElementById("total-students").textContent =
+            students.allStudents.length;
 
-function logout(){
-  window.location.href = "../login/login.html"
-}
+          // Fetch departments
+          const deptRes = await fetch(
+            "https://gtc-adosoba-be.onrender.com/api/department/all-departments"
+          );
+          const departments = await deptRes.json();
+          document.getElementById("total-departments").textContent =
+            departments.departments.length;
 
-    function cards(){
-      window.location.href = "view.html"  
-    }
-   </script>
+          // Projects (for now hardcoded, replace later)
+          document.getElementById("total-projects").textContent = 4;
+        } catch (err) {
+          console.error("Error fetching data:", err);
+        }
+      }
 
-  
+      async function loadDepartments() {
+        try {
+          const res = await fetch(
+            "https://gtc-adosoba-be.onrender.com/api/department/all-departments"
+          );
+          const data = await res.json();
 
+          if (!res.ok) {
+            alert(data.message || "Failed to fetch departments");
+            return;
+          }
 
-</body>
+          const deptList = document.querySelector(".dept-list");
+          deptList.innerHTML = "";
+
+          data.departments.forEach((dept) => {
+            const card = document.createElement("div");
+            card.className = "dept-card";
+
+            card.innerHTML = `
+              <h3>${dept.departmentName}</h3>
+              <p>${dept.description || "No description available"}</p>
+              <p>
+                <img src="../add.jpg" alt=""> ${dept.students?.length || 0} Students |
+                <img src="../add.jpg" alt=""> ${dept.projects?.length || 0} Projects
+              </p>
+            `;
+
+            // ✅ Redirect with departmentId when clicked
+            card.addEventListener("click", () => {
+              window.location.href = `../../departmnet/department.html?id=${dept._id}`;
+            });
+
+            deptList.appendChild(card);
+          });
+        } catch (error) {
+          console.error("Error fetching departments:", error);
+        }
+      }
+
+      // Call functions when page loads
+      window.onload = () => {
+        loadCounts();
+        loadDepartments();
+      };
+
+      function Create() {
+        window.location.href = "../../departmnet/departmentForm.html";
+      }
+
+      function logout() {
+        window.location.href = "../login/login.html";
+      }
+    </script>
+  </body>
 </html>
