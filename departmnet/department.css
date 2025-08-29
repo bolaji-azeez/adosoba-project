@@ -274,7 +274,7 @@ header {
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  background: #fff;
+  background: #3684d3;
   border-bottom: 1px solid #e5e7eb;
   position: sticky;
   top: 0;
@@ -284,6 +284,9 @@ header nav {
   display: flex;
   gap: 14px;
   align-items: center;
+}
+header h1{
+  color: white;
 }
 .user-actions {
   display: flex;
@@ -325,7 +328,7 @@ main {
   gap: 12px;
 }
 .add-student {
-  background: var(--brand);
+  background:  #e6b800;
   color: #fff;
   border: none;
   padding: 10px 14px;
