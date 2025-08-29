@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Project Form</title>
+    <link rel="stylesheet" href="student.css" />
+    <style>
+      /* --- Aesthetic base (works even without student.css) --- */
+      :root{
+        --brand:#0b63e5; --brand-2:#1047a9; --bg:#f7f8fb; --card:#ffffff; --text:#111827; --muted:#6b7280;
+        --ring:#bfdbfe; --border:#e5e7eb; --success:#16a34a; --danger:#dc2626; --warn:#f59e0b;
+        --shadow:0 10px 30px rgba(2,6,23,.08);
+      }
+      *{box-sizing:border-box}
+      html,body{height:100%}
+      body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+      .shell{max-width:980px;margin:32px auto;padding:0 16px}
+
+      .header{
+        display:flex;align-items:center;justify-content:space-between;margin-bottom:16px
+      }
+      .title{display:flex;align-items:center;gap:12px}
+      .title .logo{width:40px;height:40px;border-radius:10px;background:#e0ecff;display:grid;place-items:center;font-weight:700;color:#1e40af}
+      .title h1{margin:0;font-size:28px}
+
+      .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+      .card .card-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+      .card .card-head h2{margin:0;font-size:18px}
+      .card .card-body{padding:18px 20px}
+
+      form{display:grid;gap:18px}
+
+      /* Section headings */
+      .section{display:grid;gap:14px}
+      .section-title{display:flex;align-items:center;gap:10px;font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:#374151}
+      .section-title .bar{width:6px;height:18px;border-radius:999px;background:var(--brand)}
+
+      /* Grid layout */
+      .grid{display:grid;gap:14px}
+      .grid.two{grid-template-columns:repeat(2, minmax(0,1fr))}
+      .grid.three{grid-template-columns:repeat(3, minmax(0,1fr))}
+      @media (max-width: 720px){ .grid.two, .grid.three{grid-template-columns:1fr} }
+
+      /* Inputs */
+      .field{display:grid;gap:8px}
+      .label{font-size:12px;color:var(--muted);letter-spacing:.02em}
+      .control{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;border-radius:12px;padding:10px 12px;transition:border-color .15s, box-shadow .15s}
+      .control:focus-within{border-color:var(--ring);box-shadow:0 0 0 4px var(--ring)}
+      .control input, .control select, .control textarea{border:0;outline:0;width:100%;font-size:14px;background:transparent;color:var(--text)}
+      .control textarea{min-height:96px;resize:vertical}
+      .hint{font-size:12px;color:var(--muted)}
+
+      /* Project card */
+      .project-card{border:1px dashed var(--border);border-radius:14px;padding:14px;background:#fcfdff}
+      .project-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+      .pill{font-size:12px;background:#eef2ff;color:#1e3a8a;padding:4px 10px;border-radius:999px;border:1px solid #e0e7ff}
+      .remove-btn{border:1px solid var(--border);background:#fff;border-radius:10px;padding:6px 10px;cursor:pointer}
+      .remove-btn:hover{background:#fff3f3;border-color:#fecaca}
+
+      /* Buttons */
+      .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+      .btn{appearance:none;border:1px solid var(--border);background:#fff;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
+      .btn.primary{background:var(--brand);border-color:transparent;color:#fff}
+      .btn.primary:hover{background:var(--brand-2)}
+      .btn.ghost{background:#fff}
+      .btn.warn{background:#fff7ed;border-color:#fdba74}
+      .btn.add-row{background:#eef2ff;border-color:#c7d2fe}
+
+      /* Sticky footer */
+      .sticky-footer{position:sticky;bottom:0;background:linear-gradient(180deg, rgba(247,248,251,0) 0%, var(--bg) 20%);padding-top:6px}
+      .sticky-footer .card{border-style:solid}
+
+      /* small helper */
+      .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="header">
+        <div class="title">
+          <div class="logo">G</div>
+          <h1>Add Student</h1>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Student Information</h2>
+          <span class="pill" id="projCountPill">0 Projects</span>
+        </div>
+        <div class="card-body">
+          <form id="studentForm" onsubmit="event.preventDefault(); AddStudent();">
+            <div class="section">
+              <div class="section-title"><span class="bar"></span> Basic Details</div>
+              <div class="grid three">
+                <div class="field">
+                  <label class="label" for="StudentId">Student ID</label>
+                  <div class="control"><input type="text" id="StudentId" placeholder="e.g. GTC/BA/24/001" required></div>
+                </div>
+                <div class="field">
+                  <label class="label" for="firstName">First Name</label>
+                  <div class="control"><input type="text" id="firstName" placeholder="Enter first name" required></div>
+                </div>
+                <div class="field">
+                  <label class="label" for="lastName">Last Name</label>
+                  <div class="control"><input type="text" id="lastName" placeholder="Enter last name" required></div>
+                </div>
+              </div>
+
+              <div class="grid two">
+                <div class="field">
+                  <label class="label" for="email">Email</label>
+                  <div class="control"><input type="email" id="email" placeholder="name@school.edu" required></div>
+                </div>
+                <div class="field">
+                  <label class="label" for="phone">Phone</label>
+                  <div class="control"><input type="tel" id="phone" placeholder="0803 123 4567" pattern="[0-9+\-\s()]{7,}"></div>
+                  <span class="hint">Accepts numbers, spaces, +, and -</span>
+                </div>
+              </div>
+
+              <div class="grid two">
+                <div class="field">
+                  <label class="label" for="enrollmentDate">Enrollment Date</label>
+                  <div class="control"><input type="date" id="enrollmentDate" required></div>
+                </div>
+                <div class="field">
+                  <label class="label" for="studentStatus">Student Status</label>
+                  <div class="control">
+                    <select id="studentStatus" required>
+                      <option value="Active">Active</option>
+                      <option value="Suspended">Suspended</option>
+                      <option value="Probation">Probation</option>
+                      <option value="Graduated">Graduated</option>
+                      <option value="Withdrawn">Withdrawn</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title"><span class="bar"></span> Project Details</div>
+              <div id="projects-container" class="grid" style="gap:16px">
+                <!-- Project rows will appear here -->
+              </div>
+              <button type="button" class="btn add-row" onclick="addProject()">+ Add Another Project</button>
+            </div>
+
+            <div class="sticky-footer">
+              <div class="card" style="border-radius:14px">
+                <div class="card-body" style="display:flex;gap:10px;justify-content:flex-end">
+                  <button type="button" class="btn ghost" onclick="cancel()">Cancel</button>
+                  <button type="submit" class="btn primary">Add Student</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <template id="projectTemplate">
+      <div class="project-card">
+        <div class="project-head">
+          <strong>Project <span class="idx">#</span></strong>
+          <button type="button" class="remove-btn" onclick="removeProject(this)">Remove</button>
+        </div>
+        <div class="grid two">
+          <div class="field">
+            <label class="label">Project Title</label>
+            <div class="control"><input type="text" class="projectTitle" placeholder="Enter project title" required></div>
+          </div>
+          <div class="field">
+            <label class="label">Status</label>
+            <div class="control">
+              <select class="status" required>
+                <option value="In Progress">In Progress</option>
+                <option value="On Hold">On Hold</option>
+                <option value="Terminated">Terminated</option>
+                <option value="Uncompleted">Uncompleted</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="field">
+            <label class="label">Grade</label>
+            <div class="control"><input type="text" class="grade" placeholder="A, B+, 75%"></div>
+          </div>
+          <div class="field">
+            <label class="label">Supervisor (optional)</label>
+            <div class="control"><input type="text" class="supervisor" placeholder="Dr. Jane Doe"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Description</label>
+          <div class="control"><textarea class="description" placeholder="Brief description of the project"></textarea></div>
+        </div>
+      </div>
+    </template>
+
+    <script>
+      // --- Minimal JS to power the UI ---
+      const projectsContainer = document.getElementById('projects-container');
+      const template = document.getElementById('projectTemplate');
+      const pill = document.getElementById('projCountPill');
+
+      function updateProjectIndices(){
+        const cards = projectsContainer.querySelectorAll('.project-card');
+        cards.forEach((card, i)=>{
+          card.querySelector('.idx').textContent = i+1;
+        });
+        pill.textContent = `${cards.length} Project${cards.length===1?'':'s'}`;
+      }
+
+      function addProject(prefill={}){
+        const node = template.content.cloneNode(true);
+        const el = node.querySelector('.project-card');
+        // Prefill if provided
+        if(prefill.title) el.querySelector('.projectTitle').value = prefill.title;
+        if(prefill.status) el.querySelector('.status').value = prefill.status;
+        if(prefill.grade) el.querySelector('.grade').value = prefill.grade;
+        if(prefill.supervisor) el.querySelector('.supervisor').value = prefill.supervisor;
+        if(prefill.description) el.querySelector('.description').value = prefill.description;
+        projectsContainer.appendChild(node);
+        updateProjectIndices();
+      }
+
+      function removeProject(btn){
+        const card = btn.closest('.project-card');
+        if(!card) return; card.remove(); updateProjectIndices();
+      }
+
+      function cancel(){
+        // navigate back or clear
+        if (document.referrer) { window.history.back(); } else { window.location.href = '../'; }
+      }
+
+      // Example: collect data and call your existing AddStudent() endpoint
+      async function AddStudent(){
+        // Gather student fields
+        const payload = {
+          studentId: document.getElementById('StudentId').value.trim(),
+          firstName: document.getElementById('firstName').value.trim(),
+          lastName: document.getElementById('lastName').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          phone: document.getElementById('phone').value.trim(),
+          enrollmentDate: document.getElementById('enrollmentDate').value,
+          status: document.getElementById('studentStatus').value,
+          projects: []
+        };
+
+        // Basic validation
+        if(!payload.studentId || !payload.firstName || !payload.lastName || !payload.email){
+          alert('Please fill all required fields.');return;
+        }
+
+        // Collect project rows
+        projectsContainer.querySelectorAll('.project-card').forEach(card=>{
+          payload.projects.push({
+            title: card.querySelector('.projectTitle').value.trim(),
+            status: card.querySelector('.status').value,
+            grade: card.querySelector('.grade').value.trim(),
+            supervisor: card.querySelector('.supervisor').value.trim(),
+            description: card.querySelector('.description').value.trim(),
+          });
+        });
+
+        // TODO: Replace with your actual POST to backend
+        console.log('Submit payload', payload);
+        alert('Form ready to submit! Check console for payload.');
+      }
+
+      // Seed with one project row initially
+      addProject();
+    </script>
+  </body>
+</html>
