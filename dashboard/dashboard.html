@@ -17,7 +17,6 @@
 
     <div class="dashboard">
       <main>
-        <!-- Overview Section -->
         <section class="overview">
           <h2>Overview</h2>
           <div class="cards">
@@ -39,11 +38,10 @@
           </div>
         </section>
 
-        <!-- Departments Section -->
         <section class="departments">
           <div class="btn-h2">
             <h2>Departments</h2>
-            <!-- Create Department button calls Create() -->
+
             <button class="btn-create" onclick="Create()">
               + Create Department
             </button>
@@ -55,76 +53,114 @@
     </div>
 
     <script>
-      async function loadCounts() {
+      const BASE = "https://gtc-adosoba-be.onrender.com/api";
+
+      const len = (v) =>
+        Array.isArray(v) ? v.length : typeof v === "number" ? v : 0;
+
+      async function loadCountsAndDepartments() {
         try {
-          // Fetch students
-          const studentsRes = await fetch(
-            "https://gtc-adosoba-be.onrender.com/api/student/all-student"
-          );
-          const students = await studentsRes.json();
-          document.getElementById("total-students").textContent =
-            students.allStudents.length;
+          const [studentsRes, deptRes] = await Promise.all([
+            fetch(`${BASE}/student/all-student`),
+            fetch(`${BASE}/department/all-departments`),
+          ]);
 
-          // Fetch departments
-          const deptRes = await fetch(
-            "https://gtc-adosoba-be.onrender.com/api/department/all-departments"
-          );
-          const departments = await deptRes.json();
-          document.getElementById("total-departments").textContent =
-            departments.departments.length;
+          const [studentsJson, deptsJson] = await Promise.all([
+            studentsRes.json(),
+            deptRes.json(),
+          ]);
 
-          // Projects (for now hardcoded, replace later)
-          document.getElementById("total-projects").textContent = 4;
-        } catch (err) {
-          console.error("Error fetching data:", err);
-        }
-      }
+          if (!studentsRes.ok)
+            throw new Error(studentsJson?.message || "Failed to load students");
+          if (!deptRes.ok)
+            throw new Error(deptsJson?.message || "Failed to load departments");
 
-      async function loadDepartments() {
-        try {
-          const res = await fetch(
-            "https://gtc-adosoba-be.onrender.com/api/department/all-departments"
-          );
-          const data = await res.json();
+          const allStudents = Array.isArray(studentsJson?.allStudents)
+            ? studentsJson.allStudents
+            : Array.isArray(studentsJson)
+            ? studentsJson
+            : [];
+          const departments = Array.isArray(deptsJson?.departments)
+            ? deptsJson.departments
+            : Array.isArray(deptsJson)
+            ? deptsJson
+            : [];
 
-          if (!res.ok) {
-            alert(data.message || "Failed to fetch departments");
-            return;
+          const totalStudents = allStudents.length;
+
+          const studentCountByDept = {};
+          for (const s of allStudents) {
+            const deptId =
+              s.departmentId ||
+              (typeof s.department === "string"
+                ? s.department
+                : s.department?._id) ||
+              s.deptId ||
+              s.dept?._id ||
+              null;
+
+            if (deptId) {
+              studentCountByDept[deptId] =
+                (studentCountByDept[deptId] || 0) + 1;
+            }
           }
+
+          const totalDepartments = departments.length;
+
+          let totalProjects = 0;
 
           const deptList = document.querySelector(".dept-list");
           deptList.innerHTML = "";
 
-          data.departments.forEach((dept) => {
+          for (const dept of departments) {
+            const projectCountFromField = Number.isFinite(dept.projectCount)
+              ? dept.projectCount
+              : null;
+            const studentCountFromField = Number.isFinite(dept.studentCount)
+              ? dept.studentCount
+              : null;
+
+            const studentsInDept =
+              studentCountFromField ??
+              (dept.students
+                ? len(dept.students)
+                : studentCountByDept[dept._id] || 0);
+
+            const projectsInDept =
+              projectCountFromField ?? (dept.projects ? len(dept.projects) : 0);
+
+            totalProjects += projectsInDept;
+
             const card = document.createElement("div");
             card.className = "dept-card";
-
             card.innerHTML = `
-              <h3>${dept.departmentName}</h3>
-              <p>${dept.description || "No description available"}</p>
-              <p>
-                <img src="../add.jpg" alt=""> ${dept.students?.length || 0} Students |
-                <img src="../add.jpg" alt=""> ${dept.projects?.length || 0} Projects
-              </p>
-            `;
+          <h3>${dept.departmentName || "Unnamed Department"}</h3>
+          <p>${dept.description || "No description available"}</p>
+          <p>
+            <img src="../add.jpg" alt=""> ${studentsInDept} Students |
+            <img src="../add.jpg" alt=""> ${projectsInDept} Projects
+          </p>
+        `;
 
-            // ✅ Redirect with departmentId when clicked
             card.addEventListener("click", () => {
-              window.location.href = `../../departmnet/department.html?id=${dept._id}`;
+              window.location.href =
+                "../../departmnet/department.html?id=" +
+                encodeURIComponent(dept._id);
             });
 
             deptList.appendChild(card);
-          });
-        } catch (error) {
-          console.error("Error fetching departments:", error);
+          }
+
+          document.getElementById("total-students").textContent =
+            String(totalStudents);
+          document.getElementById("total-departments").textContent =
+            String(totalDepartments);
+          document.getElementById("total-projects").textContent =
+            String(totalProjects);
+        } catch (err) {
+          console.error("Error loading dashboard:", err);
         }
       }
-
-      // Call functions when page loads
-      window.onload = () => {
-        loadCounts();
-        loadDepartments();
-      };
 
       function Create() {
         window.location.href = "../../departmnet/departmentForm.html";
@@ -133,6 +169,13 @@
       function logout() {
         window.location.href = "../login/login.html";
       }
+
+      window.Create = Create;
+      window.logout = logout;
+
+      window.onload = () => {
+        loadCountsAndDepartments();
+      };
     </script>
   </body>
 </html>

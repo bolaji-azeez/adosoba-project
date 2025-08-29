@@ -3,7 +3,7 @@ const departmentId = urlParams.get("id");
 
 const API_BASE = "https://gtc-adosoba-be.onrender.com/api";
 const studentsCache = new Map();
-let studentsData = []; // master list for sorting/filtering
+let studentsData = [];
 
 const state = {
   sortBy: "name",
@@ -15,7 +15,7 @@ const state = {
 };
 
 function setDepartmentInfo(dept) {
-  const name = dept?.departmentName || "Department";
+  const name = dept?.departmentName || dept?.name || "Department";
   document.getElementById("deptName").textContent = name;
   document.getElementById("breadcrumbDept").textContent = name;
   document.getElementById("deptDesc").textContent =
@@ -23,13 +23,49 @@ function setDepartmentInfo(dept) {
   document.getElementById("pageTitle").textContent = `${name} • GTC Adosoba`;
 }
 
+function writeDeptMetrics() {
+  const totalStudentsEl = document.getElementById("totalStudents");
+  const totalProjectsEl = document.getElementById("totalProjects");
+  const activeCountEl = document.getElementById("activeCount");
+  if (!totalStudentsEl && !totalProjectsEl && !activeCountEl) return;
+
+  const totalStudents = studentsData.length;
+  const totalProjects = studentsData.reduce((sum, s) => {
+    if (Array.isArray(s.projects)) return sum + s.projects.length;
+    if (s.project) return sum + 1;
+    return sum;
+  }, 0);
+  const activeCount = studentsData.filter(
+    (s) => String(s.status || "").toLowerCase() === "active"
+  ).length;
+
+  if (totalStudentsEl) totalStudentsEl.textContent = String(totalStudents);
+  if (totalProjectsEl) totalProjectsEl.textContent = String(totalProjects);
+  if (activeCountEl) activeCountEl.textContent = String(activeCount);
+}
+
 async function tryFetchDepartment() {
-  try {
-    const r = await fetch(`${API_BASE}/department/${departmentId}`);
-    if (!r.ok) return;
-    const d = await r.json();
-    if (d?.department) setDepartmentInfo(d.department);
-  } catch {}
+  if (!departmentId) {
+    alert("Missing department id in URL (?id=...)");
+    return;
+  }
+  const candidates = [
+    `${API_BASE}/department/${departmentId}`,
+    `${API_BASE}/department/department/${departmentId}`,
+    `${API_BASE}/department/single-department/${departmentId}`,
+  ];
+  for (const url of candidates) {
+    try {
+      const r = await fetch(url);
+      if (!r.ok) continue;
+      const d = await r.json();
+      const dept = d?.department || d?.data || d;
+      if (dept && (dept.departmentName || dept.name || dept._id)) {
+        setDepartmentInfo(dept);
+        return;
+      }
+    } catch {}
+  }
 }
 
 function showToast(msg) {
@@ -40,13 +76,7 @@ function showToast(msg) {
 }
 
 function statusOptions(current) {
-  const options = [
-    "Active",
-    "Suspended",
-    "Probation",
-    "Graduated",
-    "Withdrawn",
-  ];
+  const options = ["Complete", "In Progress", "Terminated", "Uncompleted"];
   return options
     .map(
       (opt) =>
@@ -117,7 +147,6 @@ function renderPagination(total) {
   let html = `<button class="page-btn" ${
     cur === 1 ? "disabled" : ""
   } data-act="prev">Prev</button>`;
-  // show up to 7 page numbers (windowed)
   const windowSize = 7;
   let start = Math.max(1, cur - Math.floor(windowSize / 2));
   let end = Math.min(totalPages, start + windowSize - 1);
@@ -146,13 +175,12 @@ function renderTable() {
   tbody.innerHTML = "";
   const q = state.q.trim().toLowerCase();
   let list = studentsData.slice();
-  // Filter by status
+
   if (state.status !== "all") {
     list = list.filter(
       (s) => String(s.status || "").toLowerCase() === state.status.toLowerCase()
     );
   }
-  // Filter by search
   if (q) {
     list = list.filter(
       (s) =>
@@ -160,7 +188,6 @@ function renderTable() {
         (s.studentId || s.matricNo || "").toLowerCase().includes(q)
     );
   }
-  // Filter by date (exact match)
   if (state.date) {
     list = list.filter((s) => {
       if (!s.enrollmentDate) return false;
@@ -169,13 +196,12 @@ function renderTable() {
       return ymd(d) === state.date;
     });
   }
-  // Sort
+
   let cmp = byName;
   if (state.sortBy === "date") cmp = byDate;
   else if (state.sortBy === "status") cmp = byStatus;
   list.sort(cmp);
 
-  // Pagination
   const total = list.length;
   renderPagination(total);
   const totalPages = Math.ceil(total / state.pageSize) || 1;
@@ -184,7 +210,6 @@ function renderTable() {
   const end = start + state.pageSize;
   const pageItems = list.slice(start, end);
 
-  // Rows
   pageItems.forEach((stu) => {
     const id = stu._id || stu.id || "";
     studentsCache.set(id, stu);
@@ -200,24 +225,27 @@ function renderTable() {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-            <td>${studentId}</td>
-            <td>${fullName || "Unnamed"}</td>
-            <td>${email}</td>
-            <td>${projectsCount}</td>
-            <td>
-              <select class="status-select" id="status-${id}">${statusOptions(
+      <td>${studentId}</td>
+      <td>${fullName || "Unnamed"}</td>
+      <td>${email}</td>
+      <td>${projectsCount}</td>
+      <td>
+        <select class="status-select" id="status-${id}">${statusOptions(
       status
     )}</select>
-            </td>
-            <td class="actions">
-              <button class="btn" onclick="openStudentModal('${id}')">View</button>
-              <button class="btn primary" id="save-${id}" onclick="saveStatus('${id}')">Save</button>
-            </td>`;
+      </td>
+      <td class="actions">
+        <button class="btn" onclick="openStudentModal('${id}')">View</button>
+      
+      </td>`;
     tbody.appendChild(tr);
   });
+
+  writeDeptMetrics();
 }
 
 async function fetchStudents() {
+  if (!departmentId) return;
   try {
     const res = await fetch(`${API_BASE}/student/department/${departmentId}`);
     const data = await res.json();
@@ -230,10 +258,12 @@ async function fetchStudents() {
       }</td></tr>`;
       return;
     }
-    if (data.student && data.student.length > 0) {
+
+    if (Array.isArray(data.student) && data.student.length > 0) {
       const dept = data.student[0].department;
       if (dept) setDepartmentInfo(dept);
     }
+
     studentsData = Array.isArray(data.student) ? data.student : [];
     renderTable();
   } catch (err) {
@@ -276,49 +306,49 @@ function openStudentModal(id) {
           const grade = p.grade || p.score || "—";
           const desc = p.description || p.details || "";
           return `<tr>
-              <td>${idx + 1}</td>
-              <td>${title}</td>
-              <td>${projectStatusPill(pstatus)}</td>
-              <td>${grade}</td>
-              <td>${desc ? desc : "—"}</td>
-            </tr>`;
+          <td>${idx + 1}</td>
+          <td>${title}</td>
+          <td>${projectStatusPill(pstatus)}</td>
+          <td>${grade}</td>
+          <td>${desc ? desc : "—"}</td>
+        </tr>`;
         })
         .join("")
     : `<tr><td colspan="5">No Project Assigned</td></tr>`;
 
   const html = `
-          <div class="profile">
-            <div class="avatar">${initials}</div>
-            <div>
-              <h2 style="margin:0 0 6px 0">${name || "Student"}</h2>
-              <span class="badge">${dept}</span>
-              <div class="kv">
-                <div class="k">Student ID</div><div>${studentId}</div>
-                <div class="k">Email</div><div>${email}</div>
-                <div class="k">Phone</div><div>${phone}</div>
-                <div class="k">Enrollment Date</div><div>${enrollmentDate}</div>
-                <div class="k">Status</div><div><select class="status-select" id="modal-status-${id}">${statusOptions(
+    <div class="profile">
+      <div class="avatar">${initials}</div>
+      <div>
+        <h2 style="margin:0 0 6px 0">${name || "Student"}</h2>
+        <span class="badge">${dept}</span>
+        <div class="kv">
+          <div class="k">Student ID</div><div>${studentId}</div>
+          <div class="k">Email</div><div>${email}</div>
+          <div class="k">Phone</div><div>${phone}</div>
+          <div class="k">Enrollment Date</div><div>${enrollmentDate}</div>
+          <div class="k">Status</div><div><select class="status-select" id="modal-status-${id}">${statusOptions(
     status
   )}</select></div>
-              </div>
+        </div>
 
-              <h4 class="section-title">Projects (${projects.length})</h4>
-              <div class="proj-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Title</th>
-                      <th>Status</th>
-                      <th>Grade</th>
-                      <th>Description</th>
-                    </tr>
-                  </thead>
-                  <tbody>${projectRows}</tbody>
-                </table>
-              </div>
-            </div>
-          </div>`;
+        <h4 class="section-title">Projects (${projects.length})</h4>
+        <div class="proj-table">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Grade</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>${projectRows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
 
   const content = document.getElementById("studentModalContent");
   content.innerHTML = html;
@@ -383,7 +413,12 @@ async function saveStatus(id) {
 }
 
 function AddStudent() {
-  window.location.href = `../../student/studentform.html?dept=${encodeURIComponent(
+  if (!departmentId) {
+    alert("Missing department id");
+    return;
+  }
+
+  window.location.href = `../../student/studentform.html?departmentId=${encodeURIComponent(
     departmentId
   )}`;
 }
@@ -392,7 +427,6 @@ function logout() {
   alert("Logging out…");
 }
 
-// Toolbar events
 document.addEventListener("input", (e) => {
   if (e.target.id === "searchInput") {
     state.q = e.target.value;
@@ -429,7 +463,6 @@ document.getElementById("pagination").addEventListener("click", (e) => {
     return;
   }
   if (act === "next") {
-    const total = (studentsData || []).length; // will be recalculated in renderTable via filters
     state.page = state.page + 1;
     renderTable();
     return;
@@ -441,11 +474,9 @@ document.getElementById("pagination").addEventListener("click", (e) => {
   }
 });
 
-// Initial load
 tryFetchDepartment();
 fetchStudents();
 
-// Close modal on backdrop click & ESC
 document
   .getElementById("studentModalBackdrop")
   .addEventListener("click", (e) => {

@@ -50,7 +50,6 @@ function cancel() {
   addProject();
 }
 
-// --- Department resolver ---
 async function ensureDepartmentInput() {
   const params = new URLSearchParams(location.search);
   let departmentId =
@@ -58,7 +57,6 @@ async function ensureDepartmentInput() {
 
   if (departmentId) return departmentId;
 
-  // No id available -> inject a required <select> so the user picks one
   const form = document.querySelector(".form-container");
   const buttons = document.querySelector(".buttons");
 
@@ -91,12 +89,10 @@ async function ensureDepartmentInput() {
     alert("Could not load departments. Please try again.");
   }
 
-  // Return empty for now; AddStudent() will read the selected value
   return "";
 }
 
 async function AddStudent() {
-  // Resolve department id from URL/localStorage or from the injected <select>
   const params = new URLSearchParams(location.search);
   let departmentId =
     params.get("departmentId") || localStorage.getItem("departmentId") || "";
@@ -104,13 +100,12 @@ async function AddStudent() {
     departmentId = document.getElementById("departmentSelect")?.value || "";
   }
 
-  // Client-side required checks for clear feedback
   const required = {
     studentId: val("StudentId"),
     firstName: val("firstName"),
     lastName: val("lastName"),
     email: val("email"),
-    phone: val("phone"), // keep as text to preserve leading zeros
+    phone: val("phone"),
     enrollmentDate: val("enrollmentDate"),
     department: departmentId,
   };
@@ -126,7 +121,6 @@ async function AddStudent() {
   const projects = getProjects();
 
   const payload = {
-    // ID variants
     studentId: required.studentId,
     studentID: required.studentId,
     firstName: required.firstName,
@@ -136,7 +130,7 @@ async function AddStudent() {
     phone: required.phone,
     enrollmentDate: required.enrollmentDate,
     department: required.department,
-    // project variants
+
     projects,
     project: projects[0] || null,
     status: "Active",
@@ -159,7 +153,7 @@ async function AddStudent() {
     }
 
     alert("Student added successfully!");
-    // keep the department id for when we go back, and redirect to that department
+
     localStorage.setItem("departmentId", required.department);
     window.location.href = `../../departmnet/department.html?id=${encodeURIComponent(
       required.department
@@ -175,7 +169,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   await ensureDepartmentInput();
 });
 
-// expose for inline handlers
 window.AddStudent = AddStudent;
 window.addProject = addProject;
 window.cancel = cancel;

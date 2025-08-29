@@ -9,88 +9,215 @@
   <body>
     <div class="page">
       <div class="body-1">
-        
-          <div class="font1">
-            <h1>Create New Department</h1>
-          </div>
-    
+        <div class="font1">
+          <h1>Create New Department</h1>
+        </div>
 
         <div class="Hold">
           <div class="bod-3">
-           <label for="name">Department Name</label>
-            <input type="text" placeholder="Name" id="Department" />
+            <label for="Department">Department Name</label>
+            <input type="text" placeholder="Name" id="Department" required />
+            <small class="error" id="errDepartment" aria-live="polite"></small>
           </div>
 
           <div class="bod-3">
-            <label for="">Deaprtment Code</label>
-            <input type="text" placeholder="Code" id="Departments" />
+            <label for="Departments">Department Code</label>
+            <input type="text" placeholder="Code" id="Departments" required />
+            <small class="error" id="errDepartments" aria-live="polite"></small>
           </div>
 
           <div class="bod-3">
-            <label for="">Department Description</label>
+            <label for="Description">Department Description</label>
             <input
               type="text"
               placeholder="Description Name"
               class="Description"
               id="Description"
-            />
+              required />
+            <small class="error" id="errDescription" aria-live="polite"></small>
           </div>
 
-            <div class="btnn">
-           <button class="button-1">
-            <a href="dashboard.html"  style="text-decoration: none; color: white;"
-              >Cancel</a
-            >
-           </button>
-           <button class="button-2" id="btn">Create Department</button>
-           </div>
-        </div>
+          <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-      
+          <div class="btnn">
+            <button class="button-1">
+              <a
+                href="dashboard.html"
+                style="text-decoration: none; color: white"
+                >Cancel</a
+              >
+            </button>
+            <button class="button-2" id="btn">Create Department</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <script>
-      let btn = document.getElementById("btn");
+      const API = "https://gtc-adosoba-be.onrender.com/api";
 
+      const el = (id) => document.getElementById(id);
+
+      const fields = {
+        departmentName: {
+          input: el("Department"),
+          error: el("errDepartment"),
+          label: "Department Name",
+        },
+        departmentCode: {
+          input: el("Departments"),
+          error: el("errDepartments"),
+          label: "Department Code",
+        },
+        description: {
+          input: el("Description"),
+          error: el("errDescription"),
+          label: "Department Description",
+        },
+      };
+
+      let toastTimer;
+      function showToast(msg, type = "success", ms = 2500) {
+        const t = el("toast");
+        if (!t) return alert(msg);
+        t.textContent = msg;
+        t.className = `toast show ${type}`;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          t.className = "toast";
+        }, ms);
+      }
+
+      function setError(f, message) {
+        f.input.classList.add("invalid");
+        f.input.setAttribute("aria-invalid", "true");
+        if (f.error) f.error.textContent = message;
+      }
+      function clearError(f) {
+        f.input.classList.remove("invalid");
+        f.input.removeAttribute("aria-invalid");
+        if (f.error) f.error.textContent = "";
+      }
+      function validateField(f, { touch = false } = {}) {
+        const value = (f.input.value || "").trim();
+        if (!value) {
+          setError(f, `${f.label} is required`);
+          return false;
+        }
+
+        if (f === fields.departmentCode && /\s/.test(value)) {
+          setError(f, "Department Code must not contain spaces");
+          return false;
+        }
+        clearError(f);
+        return true;
+      }
+      function validateForm() {
+        const a = validateField(fields.departmentName);
+        const b = validateField(fields.departmentCode);
+        const c = validateField(fields.description);
+        return a && b && c;
+      }
+
+      Object.values(fields).forEach((f) => {
+        ["input", "blur"].forEach((evt) =>
+          f.input.addEventListener(evt, () => validateField(f))
+        );
+      });
+
+      const btn = document.getElementById("btn");
       btn.addEventListener("click", async function () {
-        let departmentName = document.getElementById("Department").value;
-        let departmentCode = document.getElementById("Departments").value;
-        let description = document.getElementById("Description").value;
+        if (!validateForm()) {
+          showToast("Please fix highlighted fields.", "warn");
 
-        // build request body
-        let body = {
-          departmentName,
-          departmentCode,
-          description,
+          const firstInvalid = document.querySelector("input.invalid");
+          if (firstInvalid) firstInvalid.focus();
+          return;
+        }
+
+        const body = {
+          departmentName: fields.departmentName.input.value.trim(),
+          departmentCode: fields.departmentCode.input.value.trim(),
+          description: fields.description.input.value.trim(),
         };
 
-        try {
-          let res = await fetch(
-            "https://gtc-adosoba-be.onrender.com/api/department/create-department",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(body),
-            }
-          );
+        btn.disabled = true;
+        const prevText = btn.textContent;
+        btn.textContent = "Creating…";
 
-          let data = await res.json();
-          console.log("Response:", data);
+        try {
+          const res = await fetch(`${API}/department/create-department`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+
+          let data = {};
+          try {
+            data = await res.json();
+          } catch (_) {}
 
           if (res.ok) {
-            alert("Department created successfully!");
-            window.location.href = "../student/studentprofile.html"; // redirect
-          } else {
-            alert("Error: " + data.message);
+            showToast("Department created successfully!", "success");
+            setTimeout(() => {
+              window.location.href = "../../dashboard/dashboard.html";
+            }, 600);
+            return;
           }
-        } catch (error) {
-          console.error("Error:", error);
-          alert("Something went wrong");
+
+          const niceMessage =
+            extractErrorMessage(data) ||
+            `Could not create department (${res.status}).`;
+          showToast(niceMessage, "error");
+
+          if (data?.errors && typeof data.errors === "object") {
+            if (data.errors.departmentName)
+              setError(fields.departmentName, data.errors.departmentName);
+            if (data.errors.departmentCode)
+              setError(fields.departmentCode, data.errors.departmentCode);
+            if (data.errors.description)
+              setError(fields.description, data.errors.description);
+          }
+        } catch (err) {
+          console.error(err);
+          showToast(
+            "Network error. Please check your connection and try again.",
+            "error",
+            3500
+          );
+        } finally {
+          btn.disabled = false;
+          btn.textContent = prevText;
         }
       });
+
+      function extractErrorMessage(payload) {
+        if (!payload || typeof payload !== "object") return "";
+
+        if (payload.message && typeof payload.message === "string")
+          return payload.message;
+
+        if (payload.errors && typeof payload.errors === "object") {
+          const firstKey = Object.keys(payload.errors)[0];
+          if (firstKey) return String(payload.errors[firstKey]);
+        }
+
+        if (Array.isArray(payload) && payload.length) {
+          const first = payload[0];
+          if (typeof first === "string") return first;
+          if (first?.msg) return first.msg;
+        }
+
+        const text = JSON.stringify(payload).toLowerCase();
+        if (text.includes("duplicate") || text.includes("already exists")) {
+          if (text.includes("code"))
+            return "A department with this code already exists.";
+          if (text.includes("name"))
+            return "A department with this name already exists.";
+          return "This department already exists.";
+        }
+        return "";
+      }
     </script>
   </body>
 </html>
