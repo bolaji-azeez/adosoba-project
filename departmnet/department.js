@@ -32,6 +32,7 @@ function writeDeptMetrics() {
   const totalStudents = studentsData.length;
   const totalProjects = studentsData.reduce((sum, s) => {
     if (Array.isArray(s.projects)) return sum + s.projects.length;
+    if (Array.isArray(s.project)) return sum + s.project.length;
     if (s.project) return sum + 1;
     return sum;
   }, 0);
@@ -56,7 +57,7 @@ async function tryFetchDepartment() {
   ];
   for (const url of candidates) {
     try {
-      const r = await fetch(url);
+      const r = await fetch(url, { cache: "no-store" });
       if (!r.ok) continue;
       const d = await r.json();
       const dept = d?.department || d?.data || d;
@@ -70,18 +71,27 @@ async function tryFetchDepartment() {
 
 function showToast(msg) {
   const t = document.getElementById("toast");
+  if (!t) return;
   t.textContent = msg;
   t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), 2600);
 }
 
 function statusOptions(current) {
-  const options = ["Complete", "In Progress", "Terminated", "Uncompleted"];
+  const options = [
+    "Completed",
+    "In Progress",
+    "On Hold",
+    "Terminated",
+    "Uncompleted",
+  ];
   return options
     .map(
       (opt) =>
         `<option value="${opt}" ${
-          String(current).toLowerCase() === opt.toLowerCase() ? "selected" : ""
+          String(current || "").toLowerCase() === opt.toLowerCase()
+            ? "selected"
+            : ""
         }>${opt}</option>`
     )
     .join("");
@@ -109,32 +119,25 @@ function projectStatusPill(status) {
   }</span>`;
 }
 
-function byName(a, b) {
+const byName = (a, b) => {
   const an = `${a.firstName || ""} ${a.lastName || ""}`.trim().toLowerCase();
   const bn = `${b.firstName || ""} ${b.lastName || ""}`.trim().toLowerCase();
-  if (an < bn) return -1;
-  if (an > bn) return 1;
-  return 0;
-}
-function byDate(a, b) {
+  return an < bn ? -1 : an > bn ? 1 : 0;
+};
+const byDate = (a, b) => {
   const ad = a.enrollmentDate ? new Date(a.enrollmentDate).getTime() : 0;
   const bd = b.enrollmentDate ? new Date(b.enrollmentDate).getTime() : 0;
-  return ad - bd; // ascending only
-}
-function byStatus(a, b) {
+  return ad - bd;
+};
+const byStatus = (a, b) => {
   const as = (a.status || "").toLowerCase();
   const bs = (b.status || "").toLowerCase();
-  if (as < bs) return -1;
-  if (as > bs) return 1;
-  return 0;
-}
-
-function ymd(d) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const da = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${da}`;
-}
+  return as < bs ? -1 : as > bs ? 1 : 0;
+};
+const ymd = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate()
+  ).padStart(2, "0")}`;
 
 function renderPagination(total) {
   const pag = document.getElementById("pagination");
@@ -185,7 +188,9 @@ function renderTable() {
     list = list.filter(
       (s) =>
         `${s.firstName || ""} ${s.lastName || ""}`.toLowerCase().includes(q) ||
-        (s.studentId || s.matricNo || "").toLowerCase().includes(q)
+        (s.studentId || s.studentID || s.matricNo || "")
+          .toLowerCase()
+          .includes(q)
     );
   }
   if (state.date) {
@@ -213,20 +218,24 @@ function renderTable() {
   pageItems.forEach((stu) => {
     const id = stu._id || stu.id || "";
     studentsCache.set(id, stu);
-    const fullName = `${stu.firstName || ""} ${stu.lastName || ""}`.trim();
+    const fullName =
+      `${stu.firstName || ""} ${stu.lastName || ""}`.trim() || "Unnamed";
     const email = stu.email || stu.user?.email || "—";
     const projectsCount = Array.isArray(stu.projects)
       ? stu.projects.length
+      : Array.isArray(stu.project)
+      ? stu.project.length
       : stu.project
       ? 1
       : 0;
     const status = stu.status || "Active";
-    const studentId = stu.studentId || stu.matricNo || id.slice(-8);
+    const studentId =
+      stu.studentId || stu.studentID || stu.matricNo || id.slice(-8);
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${studentId}</td>
-      <td>${fullName || "Unnamed"}</td>
+      <td>${fullName}</td>
       <td>${email}</td>
       <td>${projectsCount}</td>
       <td>
@@ -236,7 +245,7 @@ function renderTable() {
       </td>
       <td class="actions">
         <button class="btn" onclick="openStudentModal('${id}')">View</button>
-      
+        <button class="btn" id="save-${id}" onclick="saveStatus('${id}')">Save</button>
       </td>`;
     tbody.appendChild(tr);
   });
@@ -247,7 +256,9 @@ function renderTable() {
 async function fetchStudents() {
   if (!departmentId) return;
   try {
-    const res = await fetch(`${API_BASE}/student/department/${departmentId}`);
+    const res = await fetch(`${API_BASE}/student/department/${departmentId}`, {
+      cache: "no-store",
+    });
     const data = await res.json();
 
     if (!res.ok) {
@@ -280,37 +291,49 @@ function openStudentModal(id) {
   const name = `${stu.firstName || ""} ${stu.lastName || ""}`.trim();
   const dept = stu.department?.departmentName || "N/A";
   const email = stu.email || stu.user?.email || "—";
-  const phone = stu.phone || "—";
+  const phone = stu.phone || stu.phoneNumber || "—";
   const enrollmentDate = stu.enrollmentDate
     ? new Date(stu.enrollmentDate).toLocaleDateString()
     : "—";
+  const closureDate = stu.closureDate
+    ? new Date(stu.closureDate).toLocaleDateString()
+    : "—";
+  const sessionDate = stu.session
+    ? new Date(stu.session).toLocaleDateString()
+    : "—";
   const status =
     document.getElementById(`status-${id}`)?.value || stu.status || "Active";
-  const studentId = stu.studentId || stu.matricNo || (stu._id || "").slice(-8);
+  const studentId =
+    stu.studentId || stu.studentID || stu.matricNo || (stu._id || "").slice(-8);
   const initials = (name || "ST")
     .split(" ")
     .map((s) => s[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
   const projects = Array.isArray(stu.projects)
     ? stu.projects
+    : Array.isArray(stu.project)
+    ? stu.project
     : stu.project
     ? [stu.project]
     : [];
+
   const projectRows = projects.length
     ? projects
         .map((p, idx) => {
-          const title = p.title || p.projectTitle || `Project ${idx + 1}`;
+          const title =
+            p.title || p.projectTitle || p.projectName || `Project ${idx + 1}`;
           const pstatus = p.status || p.projectStatus || "In Progress";
           const grade = p.grade || p.score || "—";
-          const desc = p.description || p.details || "";
+          const remark = p.remark || p.details || p.description || "";
           return `<tr>
           <td>${idx + 1}</td>
           <td>${title}</td>
           <td>${projectStatusPill(pstatus)}</td>
           <td>${grade}</td>
-          <td>${desc ? desc : "—"}</td>
+          <td>${remark ? remark : "—"}</td>
         </tr>`;
         })
         .join("")
@@ -327,6 +350,8 @@ function openStudentModal(id) {
           <div class="k">Email</div><div>${email}</div>
           <div class="k">Phone</div><div>${phone}</div>
           <div class="k">Enrollment Date</div><div>${enrollmentDate}</div>
+          <div class="k">Closure Date</div><div>${closureDate}</div>
+          <div class="k">Session</div><div>${sessionDate}</div>
           <div class="k">Status</div><div><select class="status-select" id="modal-status-${id}">${statusOptions(
     status
   )}</select></div>
@@ -376,8 +401,10 @@ async function saveStatus(id) {
     if (!select) return;
     const newStatus = select.value;
 
-    btn.disabled = true;
-    btn.textContent = "Saving…";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Saving…";
+    }
     const res = await fetch(`${API_BASE}/student/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -387,19 +414,23 @@ async function saveStatus(id) {
 
     if (!res.ok) {
       showToast(data.message || "Failed to update status");
-      btn.disabled = false;
-      btn.textContent = "Save";
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Save";
+      }
       return;
     }
     const stu = studentsCache.get(id) || {};
     stu.status = newStatus;
     studentsCache.set(id, stu);
     showToast("Status updated");
-    btn.textContent = "Saved";
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = "Save";
-    }, 1200);
+    if (btn) {
+      btn.textContent = "Saved";
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = "Save";
+      }, 1200);
+    }
     renderTable();
   } catch (e) {
     console.error(e);
@@ -417,8 +448,8 @@ function AddStudent() {
     alert("Missing department id");
     return;
   }
-
-  window.location.href = `../../student/studentform.html?departmentId=${encodeURIComponent(
+  // navigate to the create form WITH the department id
+  window.location.href = `../student/studentform.html?departmentId=${encodeURIComponent(
     departmentId
   )}`;
 }
@@ -427,6 +458,7 @@ function logout() {
   alert("Logging out…");
 }
 
+// filters/sorting inputs
 document.addEventListener("input", (e) => {
   if (e.target.id === "searchInput") {
     state.q = e.target.value;
@@ -452,7 +484,7 @@ document.addEventListener("change", (e) => {
   }
 });
 
-// Pagination events
+// pagination
 document.getElementById("pagination").addEventListener("click", (e) => {
   const btn = e.target.closest("button");
   if (!btn) return;
@@ -474,18 +506,46 @@ document.getElementById("pagination").addEventListener("click", (e) => {
   }
 });
 
+// refresh hook when coming back from the create page
+function checkStudentCreatedFlag() {
+  try {
+    const raw = localStorage.getItem("student:created");
+    if (!raw) return;
+    const { departmentId: dep } = JSON.parse(raw);
+    if (dep && dep === departmentId) {
+      fetchStudents();
+      showToast("Student created");
+      localStorage.removeItem("student:created");
+    }
+  } catch {}
+}
+
 tryFetchDepartment();
 fetchStudents();
 
+// Ensure we re-fetch when the page becomes visible again (covers bfcache, tab switch, etc.)
+window.addEventListener("pageshow", () => {
+  checkStudentCreatedFlag();
+  fetchStudents();
+});
+window.addEventListener("focus", () => {
+  checkStudentCreatedFlag();
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) checkStudentCreatedFlag();
+});
+
+// modal close listeners
 document
   .getElementById("studentModalBackdrop")
   .addEventListener("click", (e) => {
-    if (e.target.id === "studentModalBackdrop") {
-      closeStudentModal();
-    }
+    if (e.target.id === "studentModalBackdrop") closeStudentModal();
   });
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    closeStudentModal();
-  }
+  if (e.key === "Escape") closeStudentModal();
 });
+
+// expose
+window.AddStudent = AddStudent;
+window.saveStatus = saveStatus;
+window.openStudentModal = openStudentModal;

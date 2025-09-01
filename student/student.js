@@ -45,9 +45,7 @@ function addProject() {
 }
 
 function cancel() {
-  document.querySelector(".form-container")?.reset?.();
-  document.getElementById("projects-container").innerHTML = "";
-  addProject();
+  window.location.href = "../dashboard/dashboard.html";
 }
 
 async function ensureDepartmentInput() {
@@ -107,11 +105,14 @@ async function AddStudent() {
     email: val("email"),
     phone: val("phone"),
     enrollmentDate: val("enrollmentDate"),
+    closureDate: val("closureDate"),
+    session: val("session"),
     department: departmentId,
   };
 
   const missing = Object.entries(required).filter(([, v]) => !v);
   if (missing.length) {
+    console.log(missing);
     alert(
       "Please fill all required fields: " + missing.map(([k]) => k).join(", ")
     );
@@ -129,12 +130,17 @@ async function AddStudent() {
     phoneNumber: required.phone,
     phone: required.phone,
     enrollmentDate: required.enrollmentDate,
-    department: required.department,
+    closureDate: required.closureDate,
+    session: required.session,
+    department: departmentId,
 
     projects,
     project: projects[0] || null,
     status: "Active",
   };
+
+  console.log(closureDate);
+  console.log(payload);
 
   try {
     const res = await fetch(`${API}/student/create-student`, {
@@ -146,6 +152,7 @@ async function AddStudent() {
       body: JSON.stringify(payload),
     });
     const result = await res.json().catch(() => ({}));
+    console.log(res);
 
     if (!res.ok) {
       alert(result?.message || result?.error || "Failed to create student.");
@@ -159,7 +166,7 @@ async function AddStudent() {
       required.department
     )}`;
   } catch (err) {
-    console.error(err);
+    console.log(err);
     alert("Something went wrong while creating the student.");
   }
 }
