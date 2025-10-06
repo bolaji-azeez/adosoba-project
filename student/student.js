@@ -2,19 +2,38 @@ const API = "https://gtc-adosoba-be.onrender.com/api";
 
 const val = (id) => (document.getElementById(id)?.value || "").trim();
 
-function getProjects() {
+function getProjectsStrict() {
   const nodes = document.querySelectorAll("#projects-container .project");
   const items = [];
-  nodes.forEach((proj) => {
-    const title = proj.querySelector(".projectTitle")?.value?.trim() || "";
+  const errors = [];
+
+  nodes.forEach((proj, idx) => {
+    const row = idx + 1;
+    const projectName =
+      proj.querySelector(".projectTitle")?.value?.trim() || "";
     const status = proj.querySelector(".status")?.value?.trim() || "";
     const grade = proj.querySelector(".grade")?.value?.trim() || "";
     const description = proj.querySelector(".description")?.value?.trim() || "";
-    if (title || status || grade || description) {
-      items.push({ title, projectName: title, status, grade, description });
+
+    const anyFilled = projectName || status || grade || description;
+
+    // If nothing is filled, skip the row entirely.
+    if (!anyFilled) return;
+
+    // Enforce required fields for a "touched" row.
+    if (!projectName || !status) {
+      errors.push(
+        `Project row ${row}: ${!projectName ? "Title" : ""}${
+          !projectName && !status ? " & " : ""
+        }${!status ? "Status" : ""} required`
+      );
+      return;
     }
+
+    items.push({ projectName, status, grade, description });
   });
-  return items;
+
+  return { items, errors };
 }
 
 function addProject() {
@@ -27,6 +46,7 @@ function addProject() {
 
       <label>Status</label>
       <select class="status">
+        <option value="">-- Select Status --</option>
         <option value="In Progress">In Progress</option>
         <option value="On Hold">On Hold</option>
         <option value="Terminated">Terminated</option>
@@ -69,9 +89,8 @@ async function ensureDepartmentInput() {
     `;
   form.insertBefore(wrap, buttons);
 
-  // Load departments to populate the select
   try {
-    const res = await fetch(`${API}/department/all-departments`, {
+    const res = await fetch(`${API}/departmnet/all-departments`, {
       cache: "no-store",
     });
     const data = await res.json();
@@ -90,7 +109,9 @@ async function ensureDepartmentInput() {
   return "";
 }
 
-async function AddStudent() {
+async function AddStudent(/* evt */) {
+  // evt?.preventDefault(); // if used on <form onsubmit="AddStudent(event)">
+
   const params = new URLSearchParams(location.search);
   let departmentId =
     params.get("departmentId") || localStorage.getItem("departmentId") || "";
@@ -98,12 +119,13 @@ async function AddStudent() {
     departmentId = document.getElementById("departmentSelect")?.value || "";
   }
 
+  // IMPORTANT: ensure your HTML has id="studentID"
   const required = {
-    studentId: val("StudentId"),
+    studentID: val("studentID"),
     firstName: val("firstName"),
     lastName: val("lastName"),
     email: val("email"),
-    phone: val("phone"),
+    phoneNumber: val("phone"), // input id="phone"
     enrollmentDate: val("enrollmentDate"),
     closureDate: val("closureDate"),
     session: val("session"),
@@ -112,34 +134,27 @@ async function AddStudent() {
 
   const missing = Object.entries(required).filter(([, v]) => !v);
   if (missing.length) {
-    console.log(missing);
     alert(
       "Please fill all required fields: " + missing.map(([k]) => k).join(", ")
     );
     return;
   }
+  const { items: project, errors: projectErrors } = getProjectsStrict();
 
-  const projects = getProjects();
-
+  if (projectErrors.length) {
+    alert(
+      "Please fix the following before submitting:\n• " +
+        projectErrors.join("\n• ")
+    );
+    return;
+  }
   const payload = {
-    studentId: required.studentId,
-    studentID: required.studentId,
-    firstName: required.firstName,
-    lastName: required.lastName,
-    email: required.email,
-    phoneNumber: required.phone,
-    phone: required.phone,
-    enrollmentDate: required.enrollmentDate,
-    closureDate: required.closureDate,
-    session: required.session,
-    department: departmentId,
-
-    projects,
-    project: projects[0] || null,
+    ...required,
+    project,
     status: "Active",
   };
 
-  console.log(closureDate);
+  console.log(required.closureDate);
   console.log(payload);
 
   try {
@@ -151,8 +166,8 @@ async function AddStudent() {
       },
       body: JSON.stringify(payload),
     });
+
     const result = await res.json().catch(() => ({}));
-    console.log(res);
 
     if (!res.ok) {
       alert(result?.message || result?.error || "Failed to create student.");
@@ -160,13 +175,13 @@ async function AddStudent() {
     }
 
     alert("Student added successfully!");
-
     localStorage.setItem("departmentId", required.department);
+
     window.location.href = `../../departmnet/department.html?id=${encodeURIComponent(
       required.department
     )}`;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     alert("Something went wrong while creating the student.");
   }
 }
